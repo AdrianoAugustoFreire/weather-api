@@ -1,15 +1,35 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Microsoft.EntityFrameworkCore;
+using WeatherAPI;
+using WeatherAPI.Data;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient("OpenMeteoAPI", client =>
+{
+	client.BaseAddress = new Uri("https://api.open-meteo.com/v1/");
+});
+
+builder.Services.AddScoped<IWeatherDataProvider, OpenMeteoWeatherDataProvider>();
+builder.Services.AddScoped<IWeatherForecastParserService, OpenMeteoParserService>();
+builder.Services.AddScoped<IWeatherForecastDataService, WeatherForecastDataService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
+	options.UseSqlite(builder.Configuration["ConnectionStrings:SQLiteDefault"]),
+	ServiceLifetime.Scoped);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+using (var scope = app.Services.CreateScope())
+{
+	var dataContext = scope.ServiceProvider.GetRequiredService<WeatherForecastDbContext>();
+	dataContext.Database.EnsureCreated();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
