@@ -1,25 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductAPI.Model;
 
-namespace WeatherAPI.Data
+namespace ProductAPI
 {
-	public class WeatherForecastDbContext: DbContext
+	public class ProductAPIDbContext: DbContext
 	{
-		public virtual DbSet<LocationWeatherForecast> LocationWeatherData { get; set; }
+		public virtual DbSet<Product> Products { get; set; }
+		public virtual DbSet<Buyer> Buyers { get; set; }
 
 		public string DbPath { get; }
 
-		public WeatherForecastDbContext() : base()
+		public ProductAPIDbContext() : base()
 		{
 			var folder = Environment.SpecialFolder.LocalApplicationData;
 			var path = Environment.GetFolderPath(folder);
-			DbPath = Path.Join(path, "WeatherAPI.sqlite");
+			DbPath = Path.Join(path, "ProductAPI.sqlite");
 		}
 
-		public WeatherForecastDbContext(DbContextOptions<WeatherForecastDbContext> options): base(options)
+		public ProductAPIDbContext(DbContextOptions<ProductAPIDbContext> options): base(options)
 		{
 			var folder = Environment.SpecialFolder.LocalApplicationData;
 			var path = Environment.GetFolderPath(folder);
-			DbPath = Path.Join(path, "WeatherAPI.sqlite");
+			DbPath = Path.Join(path, "ProductAPI.sqlite");
 		}
 
 		protected override void OnConfiguring(DbContextOptionsBuilder options)

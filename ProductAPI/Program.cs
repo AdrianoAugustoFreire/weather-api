@@ -1,21 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using WeatherAPI;
-using WeatherAPI.Data;
+using ProductAPI;
+using ProductAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHttpClient("OpenMeteoAPI", client =>
-{
-	client.BaseAddress = new Uri("https://api.open-meteo.com/v1/");
-});
 
-builder.Services.AddScoped<IWeatherDataProvider, OpenMeteoWeatherDataProvider>();
-builder.Services.AddScoped<IWeatherForecastParserService, OpenMeteoParserService>();
-builder.Services.AddScoped<IWeatherForecastDataService, WeatherForecastDataService>();
+builder.Services.AddScoped<INotify, BuyerNotifyService>();
+builder.Services.AddScoped<IProductAPIRepositoryService, ProductRepositoryService>();
+builder.Services.AddScoped<IProductActiveValidatorService, ProductActiveValidatorService>();
+builder.Services.AddScoped<IProductBuyerChangeValidatorService, ProductBuyerChangeValidatorService>();
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
+builder.Services.AddDbContext<ProductAPIDbContext>(options =>
 	options.UseSqlite(builder.Configuration["ConnectionStrings:SQLiteDefault"]),
 	ServiceLifetime.Scoped);
 
@@ -26,7 +23,7 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-	var dataContext = scope.ServiceProvider.GetRequiredService<WeatherForecastDbContext>();
+	var dataContext = scope.ServiceProvider.GetRequiredService<ProductAPIDbContext>();
 	dataContext.Database.EnsureCreated();
 }
 
